@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  user-balance-service:
+    container_name: user-balance-service
+    restart: always
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+    ports:
+      - "9090:9090"
+    environment:
+      PORT: 9090
+      API_VERSION: v1
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_TABLE: postgres
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: qwerty
+      DATABASE_SCHEMA: public
+    command: ./main
+    depends_on:
+      - postgres
+  postgres:
+    container_name: postgres
+    image: postgres:14.1-alpine
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwerty
+      POSTGRES_DB: postgres
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
