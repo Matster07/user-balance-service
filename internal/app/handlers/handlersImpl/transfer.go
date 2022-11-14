@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/darahayes/go-boom"
 	"github.com/jackc/pgx/v4"
-	"github.com/matster07/user-balance-service/internal/app/accounts"
-	"github.com/matster07/user-balance-service/internal/app/transactions"
+	accounts2 "github.com/matster07/user-balance-service/internal/app/entity/accounts"
+	"github.com/matster07/user-balance-service/internal/app/entity/transactions"
 	"github.com/pkg/errors"
 	"net/http"
 )
@@ -15,7 +15,7 @@ import (
 func (h *handler) transfer(w http.ResponseWriter, res *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var transferDto accounts.TransferDTO
+	var transferDto accounts2.TransferDTO
 	err := json.NewDecoder(res.Body).Decode(&transferDto)
 	if err != nil {
 		boom.BadData(w, "invalid body format")
@@ -47,21 +47,21 @@ func (h *handler) transfer(w http.ResponseWriter, res *http.Request) {
 		}
 	}(tx, context.TODO())
 
-	err = h.accountRepository.Update(tx, accounts.Account{
+	err = h.accountRepository.Update(tx, accounts2.Account{
 		ID:      transferDto.From,
 		Balance: from.Balance - transferDto.Amount,
 	})
 	if err != nil {
-		boom.BadRequest(w, err.Error())
+		boom.BadRequest(w, errors.New("failed to update account"))
 		return
 	}
 
-	err = h.accountRepository.Update(tx, accounts.Account{
+	err = h.accountRepository.Update(tx, accounts2.Account{
 		ID:      transferDto.To,
 		Balance: to.Balance + transferDto.Amount,
 	})
 	if err != nil {
-		boom.BadRequest(w, err.Error())
+		boom.BadRequest(w, errors.New("failed to update account"))
 		return
 	}
 

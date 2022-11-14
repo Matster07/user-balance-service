@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"github.com/gorilla/mux"
-	accountRepo "github.com/matster07/user-balance-service/internal/app/accounts/db"
-	categoryRepo "github.com/matster07/user-balance-service/internal/app/categories/db"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/matster07/user-balance-service/internal/app/configs"
+	accountRepo "github.com/matster07/user-balance-service/internal/app/entity/accounts/db"
+	categoryRepo "github.com/matster07/user-balance-service/internal/app/entity/categories/db"
+	orderRepo "github.com/matster07/user-balance-service/internal/app/entity/orders/db"
+	transactionRepo "github.com/matster07/user-balance-service/internal/app/entity/transactions/db"
 	"github.com/matster07/user-balance-service/internal/app/handlers/handlersImpl"
-	orderRepo "github.com/matster07/user-balance-service/internal/app/orders/db"
-	transactionRepo "github.com/matster07/user-balance-service/internal/app/transactions/db"
+	"github.com/matster07/user-balance-service/internal/app/kafka/consumer"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
 	"github.com/matster07/user-balance-service/internal/pkg/logging"
 	"net/http"
@@ -24,7 +26,17 @@ func main() {
 		logger.Fatalf("%v", err)
 	}
 
-	defer dbClient.Close()
+	reader := consumer.GetConsumer()
+	reader.Read()
+
+	defer func(pool *pgxpool.Pool, consumer *consumer.Consumer) {
+		dbClient.Close()
+
+		err := consumer.Reader.Close()
+		if err != nil {
+			logging.GetLogger().Fatal(err)
+		}
+	}(dbClient, reader)
 
 	router := mux.NewRouter()
 
@@ -36,10 +48,10 @@ func main() {
 	handler := handlersImpl.NewHandler(logger, accountRepository, transactionRepository, categoryRepository, orderRepository, cfg, dbClient)
 	handler.Register(router)
 
-	start(router, cfg)
+	startServer(router, cfg)
 }
 
-func start(router *mux.Router, cfg *configs.Config) {
+func startServer(router *mux.Router, cfg *configs.Config) {
 	logger := logging.GetLogger()
 
 	logger.Infof("server is listening port %d", cfg.Port)

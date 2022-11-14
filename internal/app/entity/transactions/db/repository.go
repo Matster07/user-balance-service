@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4"
-	"github.com/matster07/user-balance-service/internal/app/accounts/db"
-	"github.com/matster07/user-balance-service/internal/app/transactions"
+	"github.com/matster07/user-balance-service/internal/app/entity/accounts/db"
+	transactions2 "github.com/matster07/user-balance-service/internal/app/entity/transactions"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
 	"github.com/matster07/user-balance-service/internal/pkg/logging"
 )
@@ -15,7 +15,7 @@ type repository struct {
 	client postgresql.Client
 }
 
-func (r *repository) Create(tx pgx.Tx, model transactions.Transaction) error {
+func (r *repository) Create(tx pgx.Tx, model transactions2.Transaction) error {
 	sql := `
 		INSERT INTO transactions 
 		    (type, amount, sender_id, receiver_id, comment) 
@@ -33,14 +33,14 @@ func (r *repository) Create(tx pgx.Tx, model transactions.Transaction) error {
 	return nil
 }
 
-func NewRepository(client postgresql.Client, logger *logging.Logger) transactions.Repository {
+func NewRepository(client postgresql.Client, logger *logging.Logger) transactions2.Repository {
 	return &repository{
 		logger: logger,
 		client: client,
 	}
 }
 
-func prepareArgsByTransactionType(tx pgx.Tx, t transactions.Transaction, sql string) pgx.Row {
+func prepareArgsByTransactionType(tx pgx.Tx, t transactions2.Transaction, sql string) pgx.Row {
 	switch t.TransactionType {
 	case "DEPOSIT":
 		return tx.QueryRow(context.TODO(), sql, t.TransactionType, t.Amount, nil, t.To, t.Comment)

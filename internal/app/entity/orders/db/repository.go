@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4"
-	"github.com/matster07/user-balance-service/internal/app/accounts/db"
-	"github.com/matster07/user-balance-service/internal/app/orders"
+	"github.com/matster07/user-balance-service/internal/app/entity/accounts/db"
+	orders2 "github.com/matster07/user-balance-service/internal/app/entity/orders"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
 	"github.com/matster07/user-balance-service/internal/pkg/logging"
 )
@@ -15,7 +15,7 @@ type repository struct {
 	logger *logging.Logger
 }
 
-func (r *repository) Create(tx pgx.Tx, order orders.Order) error {
+func (r *repository) Create(tx pgx.Tx, order orders2.Order) error {
 	sql := `
 		INSERT INTO orders 
 		    (id, category_id, price, user_account_id, status) 
@@ -33,7 +33,7 @@ func (r *repository) Create(tx pgx.Tx, order orders.Order) error {
 	return nil
 }
 
-func NewRepository(client postgresql.Client, logger *logging.Logger) orders.Repository {
+func NewRepository(client postgresql.Client, logger *logging.Logger) orders2.Repository {
 	return &repository{
 		client: client,
 		logger: logger,

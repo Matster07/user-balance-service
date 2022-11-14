@@ -7,14 +7,16 @@ import (
 )
 
 type Config struct {
-	Port             int    `env:"PORT" envDefault:"3000"`
-	ApiVersion       string `env:"API_VERSION" envDefault:"v1"`
-	DatabaseHost     string `env:"DATABASE_HOST" envDefault:"127.0.0.1"`
-	DatabasePort     int    `env:"DATABASE_PORT" envDefault:"5432"`
-	DatabaseTable    string `env:"DATABASE_TABLE" envDefault:"postgres"`
-	DatabaseUsername string `env:"DATABASE_USERNAME" envDefault:"postgres"`
-	DatabasePassword string `env:"DATABASE_PASSWORD" envDefault:"1926Semul!"`
-	DatabaseSchema   string `env:"DATABASE_SCHEMA" envDefault:"user-balance-service"`
+	Port             int      `env:"PORT" envDefault:"3000"`
+	ApiVersion       string   `env:"API_VERSION" envDefault:"v1"`
+	DatabaseHost     string   `env:"DATABASE_HOST" envDefault:"127.0.0.1"`
+	DatabasePort     int      `env:"DATABASE_PORT" envDefault:"5432"`
+	DatabaseTable    string   `env:"DATABASE_TABLE" envDefault:"postgres"`
+	DatabaseUsername string   `env:"DATABASE_USERNAME" envDefault:"postgres"`
+	DatabasePassword string   `env:"DATABASE_PASSWORD" envDefault:"1926Semul!"`
+	DatabaseSchema   string   `env:"DATABASE_SCHEMA" envDefault:"user-balance-service"`
+	Brokers          []string `env:"BROKERS" envDefault:"localhost:9092"`
+	Topic            string   `env:"TOPIC" envDefault:"service_confirmation_topic"`
 }
 
 var instance *Config
@@ -29,5 +31,6 @@ func GetConfig() *Config {
 			logger.Fatal(err)
 		}
 	})
+
 	return instance
 }

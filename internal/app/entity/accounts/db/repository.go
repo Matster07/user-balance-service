@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
-	"github.com/matster07/user-balance-service/internal/app/accounts"
+	accounts2 "github.com/matster07/user-balance-service/internal/app/entity/accounts"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
 	"github.com/matster07/user-balance-service/internal/pkg/logging"
 	"strings"
@@ -17,16 +17,16 @@ type repository struct {
 	logger *logging.Logger
 }
 
-func (r *repository) FindById(accountId uint) (accounts.Account, error) {
+func (r *repository) FindById(accountId uint) (accounts2.Account, error) {
 	sql := `
 		SELECT id, balance, account_type FROM accounts WHERE id= $1;
 	`
 	r.logger.Trace(fmt.Sprintf("SQL Query: %s", FormatQuery(sql)))
 
-	var acc accounts.Account
+	var acc accounts2.Account
 	err := r.client.QueryRow(context.TODO(), sql, accountId).Scan(&acc.ID, &acc.Balance, &acc.AccountType)
 	if err != nil {
-		return accounts.Account{}, err
+		return accounts2.Account{}, err
 	}
 
 	return acc, nil
@@ -50,7 +50,7 @@ func (r *repository) Create(tx pgx.Tx, accountId uint, balance float64, accountT
 	return nil
 }
 
-func (r *repository) Update(tx pgx.Tx, account accounts.Account) error {
+func (r *repository) Update(tx pgx.Tx, account accounts2.Account) error {
 	sql := `
 		UPDATE accounts 
 		SET
@@ -69,7 +69,7 @@ func (r *repository) Update(tx pgx.Tx, account accounts.Account) error {
 	return nil
 }
 
-func NewRepository(client postgresql.Client, logger *logging.Logger) accounts.Repository {
+func NewRepository(client postgresql.Client, logger *logging.Logger) accounts2.Repository {
 	return &repository{
 		client: client,
 		logger: logger,
