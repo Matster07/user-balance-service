@@ -3,10 +3,10 @@ create table accounts
     id           bigserial   not null
         constraint accounts_pk
             primary key,
+    account_type varchar(50) not null,
     balance      numeric default 0
         constraint accounts_balance_check
-            check (balance >= (0)::numeric),
-    account_type varchar(50) not null
+            check (balance >= (0)::numeric)
 );
 
 alter table accounts
@@ -36,6 +36,23 @@ create table transactions
 alter table transactions
     owner to postgres;
 
+create table categories
+(
+    id            bigserial    not null
+        constraint service_categories_pk
+            primary key,
+    category_name varchar(255) not null,
+    account_id    bigint       not null
+        constraint service_categories_accounts_id_fk
+            references accounts
+);
+
+alter table categories
+    owner to postgres;
+
+create unique index service_categories_id_uindex
+    on categories (id);
+
 create table orders
 (
     id              bigserial          not null
@@ -60,22 +77,13 @@ alter table orders
 create unique index orders_id_uindex
     on orders (id);
 
-create table categories
-(
-    id            bigserial    not null
-        constraint service_categories_pk
-            primary key,
-    category_name varchar(255) not null,
-    account_id    bigint       not null
-        constraint service_categories_accounts_id_fk
-            references accounts
-);
+insert into accounts (id, balance, account_type) VALUES (10, 0, 'CATEGORY_RESERVATION');
+insert into accounts (id, balance, account_type) VALUES (11, 0, 'CATEGORY_RESERVATION');
+insert into accounts (id, balance, account_type) VALUES (12, 0, 'CATEGORY_RESERVATION');
+insert into categories (id, category_name, account_id) VALUES (1, 'RENT_CAR', 10);
+insert into categories (id, category_name, account_id) VALUES (2, 'BOOK_FLAT', 11);
+insert into categories (id, category_name, account_id) VALUES (3, 'WALK_THE DOG', 12);
 
-alter table categories
-    owner to postgres;
-
-create unique index service_categories_id_uindex
-    on categories (id);
 
 
 
