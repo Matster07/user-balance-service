@@ -26,18 +26,6 @@ func main() {
 		logger.Fatalf("%v", err)
 	}
 
-	reader := consumer.GetConsumer()
-	reader.Read()
-
-	defer func(pool *pgxpool.Pool, consumer *consumer.Consumer) {
-		dbClient.Close()
-
-		err := consumer.Reader.Close()
-		if err != nil {
-			logging.GetLogger().Fatal(err)
-		}
-	}(dbClient, reader)
-
 	router := mux.NewRouter()
 
 	accountRepository := accountRepo.NewRepository(dbClient, logger)
@@ -47,6 +35,18 @@ func main() {
 
 	handler := handlersImpl.NewHandler(logger, accountRepository, transactionRepository, categoryRepository, orderRepository, cfg, dbClient)
 	handler.Register(router)
+
+	reader := consumer.GetConsumer()
+	reader.Read(handler)
+
+	defer func(pool *pgxpool.Pool, consumer *consumer.Consumer) {
+		dbClient.Close()
+
+		err := consumer.Reader.Close()
+		if err != nil {
+			logging.GetLogger().Fatal("failed to close consumer:", err)
+		}
+	}(dbClient, reader)
 
 	startServer(router, cfg)
 }

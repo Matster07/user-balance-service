@@ -2,7 +2,10 @@ package consumer
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/matster07/user-balance-service/internal/app/configs"
+	"github.com/matster07/user-balance-service/internal/app/entity/accounts"
+	"github.com/matster07/user-balance-service/internal/app/handlers"
 	"github.com/matster07/user-balance-service/internal/pkg/logging"
 	"github.com/segmentio/kafka-go"
 	"sync"
@@ -40,25 +43,28 @@ func GetConsumer() *Consumer {
 	return instance
 }
 
-func (c *Consumer) Read() {
+func (c *Consumer) Read(handler handlers.Handler) {
 	logger := logging.GetLogger()
 
 	go func() {
 		for {
 			m, err := c.Reader.ReadMessage(context.Background())
 			if err != nil {
-				logger.Error("error while receiving message: %s", err.Error())
 				continue
 			}
 
-			value := m.Value
-
+			var deliverStatusDto accounts.DeliverStatusDto
+			err = json.Unmarshal(m.Value, &deliverStatusDto)
 			if err != nil {
-				logger.Error("error while receiving message: %s", err.Error())
+				logger.Error("error while unmarshal message: %s", err.Error())
 				continue
 			}
 
-			logger.Infof("message at topic/partition/offset %v/%v/%v: %s\n", m.Topic, m.Partition, m.Offset, string(value))
+			err = handler.Process(deliverStatusDto)
+			if err != nil {
+				logger.Error(err.Error())
+				continue
+			}
 		}
 	}()
 }

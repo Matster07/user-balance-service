@@ -29,7 +29,7 @@ create table transactions
     receiver_id       bigint
         constraint transactions_accounts_id_fk
             references accounts,
-    last_time_updated date default now() not null,
+    creation_date timestamp default now() not null,
     comment           varchar(255)
 );
 
@@ -68,7 +68,7 @@ create table orders
         constraint orders_accounts_id_fk
             references accounts,
     status          varchar(255)       not null,
-    creation_date   date default now() not null
+    creation_date   timestamp default now() not null
 );
 
 alter table orders

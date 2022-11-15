@@ -47,6 +47,7 @@ func (h *handler) Register(router *mux.Router) {
 	prefix := "/api/" + h.config.ApiVersion
 
 	router.HandleFunc(prefix+"/accounts/{accountId}/balance", h.getBalanceByAccountId).Methods("GET")
+	router.HandleFunc(prefix+"/accounts/{accountId}/transactions", h.getTransactionsByAccountId).Methods("GET")
 	router.HandleFunc(prefix+"/account/deposit", h.deposit).Methods("POST")
 	router.HandleFunc(prefix+"/account/withdraw", h.withdrawal).Methods("POST")
 	router.HandleFunc(prefix+"/account/transfer", h.transfer).Methods("POST")

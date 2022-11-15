@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/darahayes/go-boom"
 	"github.com/jackc/pgx/v4"
-	accounts2 "github.com/matster07/user-balance-service/internal/app/entity/accounts"
+	"github.com/matster07/user-balance-service/internal/app/entity/accounts"
 	"github.com/matster07/user-balance-service/internal/app/entity/transactions"
 	"github.com/pkg/errors"
 	"net/http"
@@ -15,7 +15,7 @@ import (
 func (h *handler) withdrawal(w http.ResponseWriter, res *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var accountDto accounts2.AccDTO
+	var accountDto accounts.AccDTO
 	err := json.NewDecoder(res.Body).Decode(&accountDto)
 	if err != nil {
 		boom.BadData(w, "invalid body format")
@@ -41,7 +41,7 @@ func (h *handler) withdrawal(w http.ResponseWriter, res *http.Request) {
 		}
 	}(tx, context.TODO())
 
-	err = h.accountRepository.Update(tx, accounts2.Account{
+	err = h.accountRepository.Update(tx, accounts.Account{
 		ID:      accountDto.AccountId,
 		Balance: acc.Balance - accountDto.Amount,
 	})

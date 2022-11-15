@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/darahayes/go-boom"
 	"github.com/jackc/pgx/v4"
-	accounts2 "github.com/matster07/user-balance-service/internal/app/entity/accounts"
+	"github.com/matster07/user-balance-service/internal/app/entity/accounts"
 	"github.com/matster07/user-balance-service/internal/app/entity/orders"
 	"github.com/matster07/user-balance-service/internal/app/entity/transactions"
 	"github.com/pkg/errors"
@@ -16,7 +16,7 @@ import (
 func (h *handler) reserve(w http.ResponseWriter, res *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var reserveDto accounts2.ReserveDTO
+	var reserveDto accounts.ReserveDTO
 	err := json.NewDecoder(res.Body).Decode(&reserveDto)
 	if err != nil {
 		boom.BadData(w, "invalid body format")
@@ -54,7 +54,7 @@ func (h *handler) reserve(w http.ResponseWriter, res *http.Request) {
 		}
 	}(tx, context.TODO())
 
-	err = h.accountRepository.Update(tx, accounts2.Account{
+	err = h.accountRepository.Update(tx, accounts.Account{
 		ID:      account.ID,
 		Balance: account.Balance - reserveDto.Price,
 	})
@@ -63,7 +63,7 @@ func (h *handler) reserve(w http.ResponseWriter, res *http.Request) {
 		return
 	}
 
-	err = h.accountRepository.Update(tx, accounts2.Account{
+	err = h.accountRepository.Update(tx, accounts.Account{
 		ID:      reservingAcc.ID,
 		Balance: reservingAcc.Balance + reserveDto.Price,
 	})

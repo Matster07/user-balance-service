@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v4"
 	"github.com/matster07/user-balance-service/internal/app/entity/accounts/db"
-	orders2 "github.com/matster07/user-balance-service/internal/app/entity/orders"
+	"github.com/matster07/user-balance-service/internal/app/entity/orders"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
 	"github.com/matster07/user-balance-service/internal/pkg/logging"
 )
@@ -15,7 +15,26 @@ type repository struct {
 	logger *logging.Logger
 }
 
-func (r *repository) Create(tx pgx.Tx, order orders2.Order) error {
+func (r *repository) UpdateStatus(tx pgx.Tx, id uint, status string) (order orders.Order, err error) {
+	sql := `
+		UPDATE orders 
+		SET
+		    status = $2
+		WHERE 
+			id = $1
+		RETURNING ID, price, category_id, status
+	`
+	r.logger.Trace(fmt.Sprintf("SQL Query: %s", db.FormatQuery(sql)))
+
+	err = tx.QueryRow(context.TODO(), sql, id, status).Scan(&order.ID, &order.Price, &order.CategoryId, &order.Status)
+	if err != nil {
+		return order, err
+	}
+
+	return order, nil
+}
+
+func (r *repository) Create(tx pgx.Tx, order orders.Order) error {
 	sql := `
 		INSERT INTO orders 
 		    (id, category_id, price, user_account_id, status) 
@@ -33,7 +52,7 @@ func (r *repository) Create(tx pgx.Tx, order orders2.Order) error {
 	return nil
 }
 
-func NewRepository(client postgresql.Client, logger *logging.Logger) orders2.Repository {
+func NewRepository(client postgresql.Client, logger *logging.Logger) orders.Repository {
 	return &repository{
 		client: client,
 		logger: logger,

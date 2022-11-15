@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
-	accounts2 "github.com/matster07/user-balance-service/internal/app/entity/accounts"
+	"github.com/matster07/user-balance-service/internal/app/entity/accounts"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
 	"github.com/matster07/user-balance-service/internal/pkg/logging"
 	"strings"
@@ -17,16 +17,31 @@ type repository struct {
 	logger *logging.Logger
 }
 
-func (r *repository) FindById(accountId uint) (accounts2.Account, error) {
+func (r *repository) FindById(accountId uint) (accounts.Account, error) {
 	sql := `
 		SELECT id, balance, account_type FROM accounts WHERE id= $1;
 	`
 	r.logger.Trace(fmt.Sprintf("SQL Query: %s", FormatQuery(sql)))
 
-	var acc accounts2.Account
+	var acc accounts.Account
 	err := r.client.QueryRow(context.TODO(), sql, accountId).Scan(&acc.ID, &acc.Balance, &acc.AccountType)
 	if err != nil {
-		return accounts2.Account{}, err
+		return accounts.Account{}, err
+	}
+
+	return acc, nil
+}
+
+func (r *repository) FindByType(accType string) (accounts.Account, error) {
+	sql := `
+		SELECT id, balance, account_type FROM accounts WHERE account_type = $1;
+	`
+	r.logger.Trace(fmt.Sprintf("SQL Query: %s", FormatQuery(sql)))
+
+	var acc accounts.Account
+	err := r.client.QueryRow(context.TODO(), sql, accType).Scan(&acc.ID, &acc.Balance, &acc.AccountType)
+	if err != nil {
+		return accounts.Account{}, err
 	}
 
 	return acc, nil
@@ -50,7 +65,7 @@ func (r *repository) Create(tx pgx.Tx, accountId uint, balance float64, accountT
 	return nil
 }
 
-func (r *repository) Update(tx pgx.Tx, account accounts2.Account) error {
+func (r *repository) Update(tx pgx.Tx, account accounts.Account) error {
 	sql := `
 		UPDATE accounts 
 		SET
@@ -69,7 +84,7 @@ func (r *repository) Update(tx pgx.Tx, account accounts2.Account) error {
 	return nil
 }
 
-func NewRepository(client postgresql.Client, logger *logging.Logger) accounts2.Repository {
+func NewRepository(client postgresql.Client, logger *logging.Logger) accounts.Repository {
 	return &repository{
 		client: client,
 		logger: logger,
