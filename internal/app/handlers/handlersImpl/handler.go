@@ -52,6 +52,7 @@ func (h *handler) Register(router *mux.Router) {
 	router.HandleFunc(prefix+"/account/withdraw", h.withdrawal).Methods("POST")
 	router.HandleFunc(prefix+"/account/transfer", h.transfer).Methods("POST")
 	router.HandleFunc(prefix+"/account/reserve", h.reserve).Methods("POST")
+	router.HandleFunc(prefix+"/report/{filename}", h.generateReport).Methods("GET")
 }
 
 func returnBalance(w http.ResponseWriter, balance float64) {

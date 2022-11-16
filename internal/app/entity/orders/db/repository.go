@@ -52,6 +52,42 @@ func (r *repository) Create(tx pgx.Tx, order orders.Order) error {
 	return nil
 }
 
+func (r *repository) GetDataForReport() (result [][]string, err error) {
+	sql := `
+		SELECT category_name, SUM(price) AS profit FROM orders JOIN categories c on c.id = orders.category_id GROUP BY category_name
+	`
+	r.logger.Trace(fmt.Sprintf("SQL Query: %s", db.FormatQuery(sql)))
+
+	rows, err := r.client.Query(context.TODO(), sql)
+	if err != nil {
+		logging.GetLogger().Errorf(err.Error())
+		return result, err
+	}
+
+	result = make([][]string, 0)
+
+	for rows.Next() {
+		var categoryName string
+		var profit string
+
+		err = rows.Scan(&categoryName, &profit)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, []string{categoryName, profit})
+	}
+
+	return result, err
+}
+
+//
+//type reportRow []string
+//
+//func (r *reportRow) append() {
+//
+//}
+
 func NewRepository(client postgresql.Client, logger *logging.Logger) orders.Repository {
 	return &repository{
 		client: client,
