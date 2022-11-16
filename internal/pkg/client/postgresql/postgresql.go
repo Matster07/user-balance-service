@@ -3,21 +3,13 @@ package postgresql
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/matster07/user-balance-service/internal/app/configs"
 	"github.com/matster07/user-balance-service/internal/pkg/logging"
-	repeatable "github.com/matster07/user-balance-service/internal/pkg/utils"
+	"github.com/matster07/user-balance-service/internal/pkg/utils"
 	"time"
 )
-
-type Client interface {
-	Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
-	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
-	QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row
-	Begin(ctx context.Context) (pgx.Tx, error)
-}
 
 func NewClient(ctx context.Context, maxAttempts int, sc *configs.Config) (pool *pgxpool.Pool, err error) {
 	dsn := fmt.Sprintf(
@@ -46,4 +38,18 @@ func NewClient(ctx context.Context, maxAttempts int, sc *configs.Config) (pool *
 	}
 
 	return pool, nil
+}
+
+func RollbackTx(tx pgx.Tx) {
+	err := tx.Rollback(context.TODO())
+	if err != nil {
+		logging.GetLogger().Trace("Rollback transaction")
+	}
+}
+
+func CommitTx(tx pgx.Tx) {
+	err := tx.Commit(context.TODO())
+	if err != nil {
+		logging.GetLogger().Trace("Commit transaction")
+	}
 }

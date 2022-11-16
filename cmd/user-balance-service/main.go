@@ -5,12 +5,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/matster07/user-balance-service/internal/app/configs"
-	accountRepo "github.com/matster07/user-balance-service/internal/app/entity/accounts/db"
-	categoryRepo "github.com/matster07/user-balance-service/internal/app/entity/categories/db"
-	orderRepo "github.com/matster07/user-balance-service/internal/app/entity/orders/db"
-	transactionRepo "github.com/matster07/user-balance-service/internal/app/entity/transactions/db"
-	"github.com/matster07/user-balance-service/internal/app/handlers/handlersImpl"
-	"github.com/matster07/user-balance-service/internal/app/kafka/consumer"
+	"github.com/matster07/user-balance-service/internal/app/controller/broker"
+	"github.com/matster07/user-balance-service/internal/app/controller/server"
+	"github.com/matster07/user-balance-service/internal/app/repository"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
 	"github.com/matster07/user-balance-service/internal/pkg/logging"
 	"net/http"
@@ -21,25 +18,23 @@ func main() {
 	cfg := configs.GetConfig()
 
 	logger := logging.GetLogger()
+	defer logging.PanicHandler()
+
 	dbClient, err := postgresql.NewClient(context.TODO(), 1, cfg)
 	if err != nil {
 		logger.Fatalf("%v", err)
 	}
 
+	repo := repository.GetRepository(dbClient)
+
+	handler := server.Handler{Repository: repo, Client: dbClient}
 	router := mux.NewRouter()
-
-	accountRepository := accountRepo.NewRepository(dbClient, logger)
-	transactionRepository := transactionRepo.NewRepository(dbClient, logger)
-	categoryRepository := categoryRepo.NewRepository(dbClient, logger)
-	orderRepository := orderRepo.NewRepository(dbClient, logger)
-
-	handler := handlersImpl.NewHandler(logger, accountRepository, transactionRepository, categoryRepository, orderRepository, cfg, dbClient)
 	handler.Register(router)
 
-	reader := consumer.GetConsumer()
+	reader := broker.GetConsumer()
 	reader.Read(handler)
 
-	defer func(pool *pgxpool.Pool, consumer *consumer.Consumer) {
+	defer func(pool *pgxpool.Pool, consumer *broker.Consumer) {
 		dbClient.Close()
 
 		err := consumer.Reader.Close()

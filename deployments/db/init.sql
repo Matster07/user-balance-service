@@ -36,31 +36,31 @@ create table transactions
 alter table transactions
     owner to postgres;
 
-create table categories
+create table services
 (
     id            bigserial    not null
-        constraint service_categories_pk
+        constraint service_service_pk
             primary key,
-    category_name varchar(255) not null unique,
+    service_name varchar(255) not null unique,
     account_id    bigint       not null
-        constraint service_categories_accounts_id_fk
+        constraint service_service_accounts_id_fk
             references accounts
 );
 
-alter table categories
+alter table services
     owner to postgres;
 
-create unique index service_categories_id_uindex
-    on categories (id);
+create unique index service_service_id_uindex
+    on services (id);
 
 create table orders
 (
     id              bigserial          not null
         constraint orders_pk
             primary key,
-    category_id     bigint             not null
-        constraint orders_service_categories_id_fk
-            references categories,
+    service_id     bigint             not null
+        constraint orders_service_service_id_fk
+            references services,
     price           numeric            not null
         constraint orders_price_check
             check (price > (0)::numeric),
@@ -81,9 +81,9 @@ insert into accounts (id, balance, account_type) VALUES (9, 0, 'PROFIT_ACCOUNT')
 insert into accounts (id, balance, account_type) VALUES (10, 0, 'SERVICE_RESERVATION');
 insert into accounts (id, balance, account_type) VALUES (11, 0, 'SERVICE_RESERVATION');
 insert into accounts (id, balance, account_type) VALUES (12, 0, 'SERVICE_RESERVATION');
-insert into categories (id, category_name, account_id) VALUES (1, 'RENT_CAR', 10);
-insert into categories (id, category_name, account_id) VALUES (2, 'BOOK_FLAT', 11);
-insert into categories (id, category_name, account_id) VALUES (3, 'WALK_THE DOG', 12);
+insert into services (id, service_name, account_id) VALUES (1, 'RENT_CAR', 10);
+insert into services (id, service_name, account_id) VALUES (2, 'BOOK_FLAT', 11);
+insert into services (id, service_name, account_id) VALUES (3, 'WALK_THE DOG', 12);
 
 
 

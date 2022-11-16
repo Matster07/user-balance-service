@@ -21,8 +21,20 @@ services:
     command: ./main
     depends_on:
       - postgres
+      - deliver-service
     volumes:
       - ../reports:/go/reports
+  deliver-service:
+    container_name: deliver-service
+    restart: always
+    image: docker.io/matster07/deliver-service:1.0.0
+    ports:
+      - "9091:9091"
+    environment:
+      PORT: 9091
+      API_VERSION: v1
+      BROKERS: kafka1:19092
+    command: ./main
   postgres:
     container_name: postgres
     image: postgres:14.1-alpine
@@ -61,7 +73,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
       KAFKA_BROKER_ID: 1
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_LOG4J_LOGGERS: "kafka.server=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
