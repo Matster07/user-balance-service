@@ -21,6 +21,8 @@ services:
     command: ./main
     depends_on:
       - postgres
+    volumes:
+      - ../reports:/go/reports
   postgres:
     container_name: postgres
     image: postgres:14.1-alpine

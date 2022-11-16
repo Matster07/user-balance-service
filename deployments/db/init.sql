@@ -41,7 +41,7 @@ create table categories
     id            bigserial    not null
         constraint service_categories_pk
             primary key,
-    category_name varchar(255) not null,
+    category_name varchar(255) not null unique,
     account_id    bigint       not null
         constraint service_categories_accounts_id_fk
             references accounts
@@ -77,9 +77,10 @@ alter table orders
 create unique index orders_id_uindex
     on orders (id);
 
-insert into accounts (id, balance, account_type) VALUES (10, 0, 'CATEGORY_RESERVATION');
-insert into accounts (id, balance, account_type) VALUES (11, 0, 'CATEGORY_RESERVATION');
-insert into accounts (id, balance, account_type) VALUES (12, 0, 'CATEGORY_RESERVATION');
+insert into accounts (id, balance, account_type) VALUES (9, 0, 'PROFIT_ACCOUNT');
+insert into accounts (id, balance, account_type) VALUES (10, 0, 'SERVICE_RESERVATION');
+insert into accounts (id, balance, account_type) VALUES (11, 0, 'SERVICE_RESERVATION');
+insert into accounts (id, balance, account_type) VALUES (12, 0, 'SERVICE_RESERVATION');
 insert into categories (id, category_name, account_id) VALUES (1, 'RENT_CAR', 10);
 insert into categories (id, category_name, account_id) VALUES (2, 'BOOK_FLAT', 11);
 insert into categories (id, category_name, account_id) VALUES (3, 'WALK_THE DOG', 12);

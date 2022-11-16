@@ -2,34 +2,37 @@ package handlersImpl
 
 import (
 	"encoding/csv"
+	"encoding/json"
+	"fmt"
 	"github.com/darahayes/go-boom"
-	"github.com/gorilla/mux"
 	"net/http"
+	"os"
+	filepath2 "path/filepath"
+	"strconv"
 )
 
 func (h *handler) generateReport(w http.ResponseWriter, res *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	params := mux.Vars(res)
-	filename := params["filename"] + ".csv"
+	year, err := strconv.ParseUint(res.URL.Query().Get("year"), 10, 16)
+	month, err := strconv.ParseUint(res.URL.Query().Get("month"), 10, 16)
 
-	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
-	w.Header().Set("Content-Type", "text/csv")
+	filename := filepath2.Join("reports", fmt.Sprintf("%d-%d-profit-report.csv", year, month))
 
-	//file, err := os.Create(filename)
-	//if err != nil {
-	//	boom.BadRequest(w, "error while generating report")
-	//	return
-	//}
-
-	writer := csv.NewWriter(w)
-	err := writer.Write([]string{"service_name", "profit"})
+	file, err := os.Create(filename)
 	if err != nil {
 		boom.BadRequest(w, "error while generating report")
 		return
 	}
 
-	rows, err := h.orderRepository.GetDataForReport()
+	writer := csv.NewWriter(file)
+	err = writer.Write([]string{"service_name", "profit"})
+	if err != nil {
+		boom.BadRequest(w, "error while generating report")
+		return
+	}
+
+	rows, err := h.orderRepository.GetDataForReport(uint(year), uint(month))
 	if err != nil {
 		boom.BadRequest(w, "error while generating report")
 		return
@@ -42,8 +45,8 @@ func (h *handler) generateReport(w http.ResponseWriter, res *http.Request) {
 
 	writer.Flush()
 
-	//err = json.NewEncoder(w).Encode(rows)
-	//if err != nil {
-	//	return
-	//}
+	err = json.NewEncoder(w).Encode(map[string]string{"stats": "success"})
+	if err != nil {
+		return
+	}
 }

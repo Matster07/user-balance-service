@@ -8,6 +8,7 @@ import (
 	"github.com/matster07/user-balance-service/internal/app/entity/orders"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
 	"github.com/matster07/user-balance-service/internal/pkg/logging"
+	"github.com/pkg/errors"
 )
 
 type repository struct {
@@ -52,13 +53,21 @@ func (r *repository) Create(tx pgx.Tx, order orders.Order) error {
 	return nil
 }
 
-func (r *repository) GetDataForReport() (result [][]string, err error) {
+func (r *repository) GetDataForReport(year uint, month uint) (result [][]string, err error) {
+	if month > 12 {
+		return result, errors.New("incorrect month value")
+	}
+
 	sql := `
-		SELECT category_name, SUM(price) AS profit FROM orders JOIN categories c on c.id = orders.category_id GROUP BY category_name
+		SELECT category_name, SUM(price) AS total_profit 
+        FROM orders
+		JOIN categories c on c.id = orders.category_id
+        WHERE EXTRACT(YEAR FROM creation_date) = $1 AND EXTRACT(MONTH FROM creation_date) = $2 AND status = 'COMPLETED'
+        GROUP BY category_name
 	`
 	r.logger.Trace(fmt.Sprintf("SQL Query: %s", db.FormatQuery(sql)))
 
-	rows, err := r.client.Query(context.TODO(), sql)
+	rows, err := r.client.Query(context.TODO(), sql, year, month)
 	if err != nil {
 		logging.GetLogger().Errorf(err.Error())
 		return result, err

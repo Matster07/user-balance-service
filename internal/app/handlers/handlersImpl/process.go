@@ -23,7 +23,7 @@ func (h *handler) Process(deliverStatus accounts.DeliverStatusDto) error {
 
 	order, err := h.orderRepository.UpdateStatus(tx, deliverStatus.OrderId, deliverStatus.Status)
 	if err != nil {
-		return err
+		return errors.New(fmt.Sprintf("order %d wasn't fonud", order.ID))
 	} else if order.Status != "IN_PROGRESS" {
 		return errors.New(fmt.Sprintf("order %d was already processed", order.ID))
 	}
