@@ -116,7 +116,7 @@ API
   to - (uint) кому
 - Description: списывает деньги со счета одного, прибавляет другому. Добавляет перевод в историю транзакций со типом "TRANSFER" 
 - Postman request name: Transfer
-8. Вывод средств:
+9. Вывод средств:
 - Method: POST
 - Path: /api/v1/account/withdraw
 - Request body:

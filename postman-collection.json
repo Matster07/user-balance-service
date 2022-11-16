@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "21f6591b-de20-4949-b8f0-15f8e25622fe",
+		"_postman_id": "e5cb7c68-757c-4ff3-8316-80c6e822ef17",
 		"name": "Avito",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -32,7 +32,8 @@
 						"account",
 						"deposit"
 					]
-				}
+				},
+				"description": "Request body:\r\n\r\naccount_id - (uint) идентификатор счета\r\n\r\namount - (uint) сумма пополнения\r\n\r\nDescription: при отсутствии счета с указанным идентификатором, создается и пополняется новый"
 			},
 			"response": []
 		},
@@ -86,7 +87,8 @@
 						"1",
 						"balance"
 					]
-				}
+				},
+				"description": "Query:\r\n\r\naccount_id - (uint) идентификатор счета\r\n\r\nDescription: переводит зарезервированную сумму на отдельный счет, создает запись с запонанием статуса обработки заказа, добавляет перевод в историю."
 			},
 			"response": []
 		},
@@ -117,7 +119,8 @@
 						"account",
 						"withdraw"
 					]
-				}
+				},
+				"description": "Request body:\r\n\r\nfrom - (uint) кто снимает\r\n\r\namount - (float) сумма перевода\r\n\r\nDescription: списывает деньги с указанного счета. Добавляет перевод в историю транзакций со типом \"WITHDRAWAL\""
 			},
 			"response": []
 		},
@@ -136,19 +139,20 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/v1/account/transfer",
+					"raw": "http://localhost:9090/api/v1/account/transfer",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "9090",
 					"path": [
 						"api",
 						"v1",
 						"account",
 						"transfer"
 					]
-				}
+				},
+				"description": "Request body:\r\n\r\nfrom - (uint) от кого\r\n\r\namount - (float) сумма перевода\r\n\r\nto - (uint) кому\r\n\r\nDescription: списывает деньги со счета одного, прибавляет другому. Добавляет перевод в историю транзакций со типом \"TRANSFER\""
 			},
 			"response": []
 		},
@@ -179,7 +183,8 @@
 						"account",
 						"reserve"
 					]
-				}
+				},
+				"description": "Request body:\r\n\r\nuser_account_id - (uint) идентификатор счета\r\n\r\nservice_id - (uint) идентификатор услуги\r\n\r\norder_id - (uint) идентификатор заказа\r\n\r\nprice - (float) стоимость\r\n\r\nDescription: переводит зарезервированную сумму на отдельный счет, создает запись с запонанием статуса обработки заказа, добавляет перевод в историю.\r\n\r\n"
 			},
 			"response": []
 		},
@@ -190,7 +195,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"status\": \"COMPLETED\",\r\n    \"order_id\": 1,\r\n\t\"user_account_id\": 1,\r\n\t\"amount\": 2000,\r\n\t\"user_id\": 1\r\n}",
+					"raw": "{\r\n    \"status\": \"COMPLETED\",\r\n    \"order_id\": 1,\r\n\t\"user_account_id\": 1,\r\n\t\"amount\": 2000,\r\n\t\"user_service_id\": 1\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -210,7 +215,8 @@
 						"orders",
 						"process"
 					]
-				}
+				},
+				"description": "Request body:\r\n\r\nuser_account_id - (uint) идентификатор счета\r\n\r\nservice_id - (uint) идентификатор услуги\r\n\r\norder_id - (uint) идентификатор заказа\r\n\r\nprice - (float) стоимость\r\n\r\nstatus - (\"COMPLETED\"/other) статус исполнения заказа от стороннего сервиса\r\n\r\nDescription: отправка в очередь. Для успешной обработки заказ нужно status = \"COMPETED\". Все остальные статусы будут обрабатываться, но считаться неуспешными."
 			},
 			"response": []
 		},
@@ -241,7 +247,8 @@
 						"orders",
 						"process"
 					]
-				}
+				},
+				"description": "Request body:\r\n\r\nuser_account_id - (uint) идентификатор счета\r\n\r\nservice_id - (uint) идентификатор услуги\r\n\r\norder_id - (uint) идентификатор заказа\r\n\r\nprice - (float) стоимость\r\n\r\nstatus - (\"COMPLETED\"/other) статус исполнения заказа от стороннего сервиса\r\n\r\nDescription: отправка в очередь. Для успешной обработки заказ нужно status = \"COMPETED\". Все остальные статусы будут обрабатываться, но считаться неуспешными."
 			},
 			"response": []
 		},
@@ -270,7 +277,8 @@
 							"value": "1"
 						}
 					]
-				}
+				},
+				"description": "Query:\r\n\r\ndate_sort - (asc/desc/нету значения) сортировка по дате\r\n\r\namount_sort - (asc/desc/нету значения) сортировка по сумме\r\n\r\npage - (uint) - порядковый номер желаемой выборки\r\n\r\nDescription: размера элементов в одной странице - 9. Сортировка по дате и сумме - возрастающее/убывающее/нету. Значения выбираются из transactions для указанного счета"
 			},
 			"response": []
 		},
@@ -280,8 +288,31 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
-				}
+					"raw": "http://localhost:9090/api/v1/accounts/1/transactions?date_sort=asc&page=1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"v1",
+						"accounts",
+						"1",
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "date_sort",
+							"value": "asc"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						}
+					]
+				},
+				"description": "Query:\r\n\r\ndate_sort - (asc/desc/нету значения) сортировка по дате\r\n\r\namount_sort - (asc/desc/нету значения) сортировка по сумме\r\n\r\npage - (uint) - порядковый номер желаемой выборки\r\n\r\nDescription: размера элементов в одной странице - 9. Сортировка по дате и сумме - возрастающее/убывающее/нету. Значения выбираются из transactions для указанного счета"
 			},
 			"response": []
 		},
@@ -314,7 +345,8 @@
 							"value": "1"
 						}
 					]
-				}
+				},
+				"description": "Query:\r\n\r\ndate_sort - (asc/desc/нету значения) сортировка по дате\r\n\r\namount_sort - (asc/desc/нету значения) сортировка по сумме\r\n\r\npage - (uint) - порядковый номер желаемой выборки\r\n\r\nDescription: размера элементов в одной странице - 9. Сортировка по дате и сумме - возрастающее/убывающее/нету. Значения выбираются из transactions для указанного счета"
 			},
 			"response": []
 		},
@@ -324,19 +356,20 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/api/v1/report/generate",
+					"raw": "http://localhost:9090/api/v1/report/generate",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "9090",
 					"path": [
 						"api",
 						"v1",
 						"report",
 						"generate"
 					]
-				}
+				},
+				"description": "Query:\r\n\r\nyear - (uint) год\r\n\r\nmonth - (uint) месяц\r\n\r\nDescription: Создает отчет по прибыли в разрезе всех категорий услуг по всем пользователям за выбранный период. Файл сохраняется в каталоге reports/ в корне проекта. На запрос статус, а не ссылка. Это сделано для удоства, чтобы не передавать через env в image абсолютный путь."
 			},
 			"response": []
 		}
