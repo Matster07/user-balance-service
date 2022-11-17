@@ -24,3 +24,29 @@ func (r *Service) FindById(id uint) (service entity.Service, err error) {
 
 	return service, nil
 }
+
+func (r *Service) FindAll() (service []entity.Service, err error) {
+	sql := `
+		SELECT id, account_id, service_name FROM services;
+	`
+	logging.GetLogger().Trace(fmt.Sprintf("SQL Query: %s", FormatQuery(sql)))
+
+	rows, err := r.Query(context.TODO(), sql)
+	if err != nil {
+		return []entity.Service{}, err
+	}
+
+	service = make([]entity.Service, 0)
+
+	for rows.Next() {
+		var row entity.Service
+
+		if err = rows.Scan(&row.ID, &row.AccountId, &row.ServiceName); err != nil {
+			return nil, err
+		}
+
+		service = append(service, row)
+	}
+
+	return service, nil
+}

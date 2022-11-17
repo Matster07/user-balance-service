@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/darahayes/go-boom"
+	"github.com/matster07/user-balance-service/internal/pkg/logging"
 	"net/http"
 	"os"
 	filepath2 "path/filepath"
@@ -39,6 +40,8 @@ func (h *Handler) generateReport(w http.ResponseWriter, res *http.Request) {
 		return
 	}
 
+	h.populateZeroProfitServices(&rows)
+
 	err = writer.WriteAll(rows)
 	if err != nil {
 		return
@@ -49,5 +52,26 @@ func (h *Handler) generateReport(w http.ResponseWriter, res *http.Request) {
 	err = json.NewEncoder(w).Encode(map[string]string{"stats": "success"})
 	if err != nil {
 		return
+	}
+}
+
+func (h *Handler) populateZeroProfitServices(result *[][]string) {
+	services, err := h.Service.FindAll()
+	if err != nil {
+		logging.GetLogger().Errorf("error while fetching services")
+	}
+
+	for _, value := range services {
+		needToAdd := true
+
+		for _, row := range *result {
+			if row[0] == value.ServiceName {
+				needToAdd = false
+			}
+		}
+
+		if needToAdd {
+			*result = append(*result, []string{value.ServiceName, "0"})
+		}
 	}
 }
