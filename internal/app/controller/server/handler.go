@@ -1,12 +1,11 @@
 package server
 
 import (
-	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/matster07/user-balance-service/internal/app/configs"
 	"github.com/matster07/user-balance-service/internal/app/repository"
 	"github.com/matster07/user-balance-service/internal/pkg/client"
-	"net/http"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Handler struct {
@@ -17,13 +16,16 @@ type Handler struct {
 func (h *Handler) Register(router *mux.Router) {
 	prefix := "/api/" + configs.GetConfig().ApiVersion
 
+	// Сваггер
+	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
+
 	// Получение баланса
 	router.HandleFunc(prefix+"/accounts/{accountId}/balance", h.getBalanceByAccountId).Methods("GET")
 
 	// Получение транзакций пользователя с пагинацией
 	router.HandleFunc(prefix+"/accounts/{accountId}/transactions", h.getTransactionsByAccountId).Methods("GET")
 
-	// Пополнение + инициализация счета
+	// Пополнение  +  инициализация счета
 	router.HandleFunc(prefix+"/account/deposit", h.deposit).Methods("POST")
 
 	// Вывод со счета
@@ -37,18 +39,4 @@ func (h *Handler) Register(router *mux.Router) {
 
 	// Создание отчета по услугам и прибыли от них
 	router.HandleFunc(prefix+"/report/service/profit", h.generateReport).Methods("GET")
-}
-
-func returnBalance(w http.ResponseWriter, balance float64) {
-	err := json.NewEncoder(w).Encode(map[string]float64{"balance": balance})
-	if err != nil {
-		return
-	}
-}
-
-func returnSuccess(w http.ResponseWriter, message string) {
-	err := json.NewEncoder(w).Encode(map[string]string{"message": message})
-	if err != nil {
-		return
-	}
 }

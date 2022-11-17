@@ -1,0 +1,323 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Microservice for interacting with account's balances",
+        "title": "user-balance-service",
+        "contact": {},
+        "license": {
+            "name": "MIT License",
+            "url": "https://mit-license.org/"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/account/deposit": {
+            "post": {
+                "description": "Пополнение счета, а также инициализация в случае его отсутствия",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Deposit",
+                "parameters": [
+                    {
+                        "description": "Идентификатор счета, сумма пополнения",
+                        "name": "AccountDto",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AccDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BalanceDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/account/reserve": {
+            "post": {
+                "description": "Резервация средств с указанного счета на счет для резерваций под выбранную оказываемую услугу",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Reserve",
+                "parameters": [
+                    {
+                        "description": "Идентификатор счета, идентификатор оказываемой услуги, идентификатор заказа, сумма заказа",
+                        "name": "ReserveDTO",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ReserveDTO"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/account/transfer": {
+            "post": {
+                "description": "Перевод средств с одного указанного счета на другой",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Transfer",
+                "parameters": [
+                    {
+                        "description": "Идентификатор счета отправителя, идентификатор счета получетеля, сумма перевода",
+                        "name": "TransferDTO",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.TransferDTO"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/account/withdraw": {
+            "post": {
+                "description": "Вывод средств с указанного счета",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Withdraw",
+                "parameters": [
+                    {
+                        "description": "Идентификатор счета, сумма вывода",
+                        "name": "AccDTO",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AccDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BalanceDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{accountId}/balance": {
+            "get": {
+                "description": "Получение баланса счета по его идентификатору",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Get account balance",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Идентификатор счета",
+                        "name": "accountId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BalanceDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{accountId}/transactions": {
+            "get": {
+                "description": "Получение истории транзакций счета с пагинацией, фильтрацией",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Get account transactions history",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Идентификатор счета",
+                        "name": "accountId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Сортировка по сумме транзакции(asc/desc)",
+                        "name": "amount_sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Сортировка по дате (asc/desc)",
+                        "name": "date_sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Пагинация по странице. Страница вмешает 9 значений",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.TransactionPagination"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/report/service/profit": {
+            "get": {
+                "description": "Генерация отчета услуг по прибыли в разрезе всех категорий услуг среди всех пользователей за месяц",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "report"
+                ],
+                "summary": "Generate CSV report",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Год",
+                        "name": "year",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Месяц",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "dto.AccDTO": {
+            "type": "object",
+            "properties": {
+                "account_id": {
+                    "type": "integer"
+                },
+                "amount": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.BalanceDTO": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.ReserveDTO": {
+            "type": "object",
+            "properties": {
+                "order_id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "service_id": {
+                    "type": "integer"
+                },
+                "user_account_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.TransferDTO": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "from": {
+                    "type": "integer"
+                },
+                "to": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.TransactionPagination": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

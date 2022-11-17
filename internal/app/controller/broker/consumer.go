@@ -54,7 +54,7 @@ func (c *Consumer) Read(handler server.Handler) {
 				continue
 			}
 
-			var deliverStatusDto dto.DeliverStatusDto
+			var deliverStatusDto dto.DeliverStatusDTO
 			err = json.Unmarshal(m.Value, &deliverStatusDto)
 			if err != nil {
 				logger.Error("error while unmarshal message: %s", err.Error())

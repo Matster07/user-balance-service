@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/darahayes/go-boom"
+	_ "github.com/matster07/user-balance-service/docs"
 	"github.com/matster07/user-balance-service/internal/app/data/dto"
 	"github.com/matster07/user-balance-service/internal/app/data/entity"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
@@ -12,7 +13,13 @@ import (
 	"net/http"
 )
 
-// reserve Резервирование средств
+//	@Summary      Reserve
+//	@Description  Резервация средств с указанного счета на счет для резерваций под выбранную оказываемую услугу
+//	@Tags         account
+//	@Accept       json
+//	@Produce      json
+//  @Param        ReserveDTO body dto.ReserveDTO  true "Идентификатор счета, идентификатор оказываемой услуги, идентификатор заказа, сумма заказа"
+//	@Router       /account/reserve [post]
 func (h *Handler) reserve(w http.ResponseWriter, res *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -94,5 +101,5 @@ func (h *Handler) reserve(w http.ResponseWriter, res *http.Request) {
 
 	postgresql.CommitTx(tx)
 
-	returnSuccess(w, "SUCCESS")
+	dto.ReturnStatus(w, "SUCCESS")
 }

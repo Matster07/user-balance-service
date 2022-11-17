@@ -1,0 +1,216 @@
+definitions:
+  dto.AccDTO:
+    properties:
+      account_id:
+        type: integer
+      amount:
+        type: number
+    type: object
+  dto.BalanceDTO:
+    properties:
+      balance:
+        type: number
+    type: object
+  dto.ReserveDTO:
+    properties:
+      order_id:
+        type: integer
+      price:
+        type: number
+      service_id:
+        type: integer
+      user_account_id:
+        type: integer
+    type: object
+  dto.TransferDTO:
+    properties:
+      amount:
+        type: number
+      from:
+        type: integer
+      to:
+        type: integer
+    type: object
+  entity.TransactionPagination:
+    properties:
+      amount:
+        type: number
+      comment:
+        type: string
+      date:
+        type: string
+      type:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Microservice for interacting with account's balances
+  license:
+    name: MIT License
+    url: https://mit-license.org/
+  title: user-balance-service
+  version: 1.0.0
+paths:
+  /account/deposit:
+    post:
+      consumes:
+      - application/json
+      description: Пополнение счета, а также инициализация в случае его отсутствия
+      parameters:
+      - description: Идентификатор счета, сумма пополнения
+        in: body
+        name: AccountDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AccDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BalanceDTO'
+      summary: Deposit
+      tags:
+      - account
+  /account/reserve:
+    post:
+      consumes:
+      - application/json
+      description: Резервация средств с указанного счета на счет для резерваций под
+        выбранную оказываемую услугу
+      parameters:
+      - description: Идентификатор счета, идентификатор оказываемой услуги, идентификатор
+          заказа, сумма заказа
+        in: body
+        name: ReserveDTO
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ReserveDTO'
+      produces:
+      - application/json
+      responses: {}
+      summary: Reserve
+      tags:
+      - account
+  /account/transfer:
+    post:
+      consumes:
+      - application/json
+      description: Перевод средств с одного указанного счета на другой
+      parameters:
+      - description: Идентификатор счета отправителя, идентификатор счета получетеля,
+          сумма перевода
+        in: body
+        name: TransferDTO
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TransferDTO'
+      produces:
+      - application/json
+      responses: {}
+      summary: Transfer
+      tags:
+      - account
+  /account/withdraw:
+    post:
+      consumes:
+      - application/json
+      description: Вывод средств с указанного счета
+      parameters:
+      - description: Идентификатор счета, сумма вывода
+        in: body
+        name: AccDTO
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AccDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BalanceDTO'
+      summary: Withdraw
+      tags:
+      - account
+  /accounts/{accountId}/balance:
+    get:
+      consumes:
+      - application/json
+      description: Получение баланса счета по его идентификатору
+      parameters:
+      - description: Идентификатор счета
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BalanceDTO'
+      summary: Get account balance
+      tags:
+      - account
+  /accounts/{accountId}/transactions:
+    get:
+      consumes:
+      - application/json
+      description: Получение истории транзакций счета с пагинацией, фильтрацией
+      parameters:
+      - description: Идентификатор счета
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      - description: Сортировка по сумме транзакции(asc/desc)
+        in: query
+        name: amount_sort
+        type: string
+      - description: Сортировка по дате (asc/desc)
+        in: query
+        name: date_sort
+        type: string
+      - description: Пагинация по странице. Страница вмешает 9 значений
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.TransactionPagination'
+            type: array
+      summary: Get account transactions history
+      tags:
+      - account
+  /report/service/profit:
+    get:
+      consumes:
+      - application/json
+      description: Генерация отчета услуг по прибыли в разрезе всех категорий услуг
+        среди всех пользователей за месяц
+      parameters:
+      - description: Год
+        in: query
+        name: year
+        required: true
+        type: integer
+      - description: Месяц
+        in: query
+        name: month
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: Generate CSV report
+      tags:
+      - report
+swagger: "2.0"

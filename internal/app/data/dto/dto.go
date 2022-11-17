@@ -1,5 +1,10 @@
 package dto
 
+import (
+	"encoding/json"
+	"net/http"
+)
+
 type AccDTO struct {
 	AccountId uint    `json:"account_id"`
 	Amount    float64 `json:"amount"`
@@ -18,10 +23,28 @@ type ReserveDTO struct {
 	Price     float64 `json:"price"`
 }
 
-type DeliverStatusDto struct {
+type DeliverStatusDTO struct {
 	Status        string  `json:"status"`
 	OrderId       uint    `json:"order_id"`
 	UserAccountId uint    `json:"user_account_id"`
 	Amount        float64 `json:"amount"`
 	ServiceId     uint    `json:"service_id"`
+}
+
+type BalanceDTO struct {
+	Balance float64 `json:"balance"`
+}
+
+func ReturnBalance(w http.ResponseWriter, amount float64) {
+	err := json.NewEncoder(w).Encode(BalanceDTO{amount})
+	if err != nil {
+		return
+	}
+}
+
+func ReturnStatus(w http.ResponseWriter, message string) {
+	err := json.NewEncoder(w).Encode(map[string]string{"message": message})
+	if err != nil {
+		return
+	}
 }

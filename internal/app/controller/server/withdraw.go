@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/darahayes/go-boom"
+	_ "github.com/matster07/user-balance-service/docs"
 	"github.com/matster07/user-balance-service/internal/app/data/dto"
 	"github.com/matster07/user-balance-service/internal/app/data/entity"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
@@ -12,7 +13,14 @@ import (
 	"net/http"
 )
 
-// withdrawal Вывод средств
+//	@Summary      Withdraw
+//	@Description  Вывод средств с указанного счета
+//	@Tags         account
+//	@Accept       json
+//	@Produce      json
+//  @Param        AccDTO body dto.AccDTO  true "Идентификатор счета, сумма вывода"
+//  @Success      200            {object} dto.BalanceDTO
+//	@Router       /account/withdraw [post]
 func (h *Handler) withdrawal(w http.ResponseWriter, res *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -58,5 +66,5 @@ func (h *Handler) withdrawal(w http.ResponseWriter, res *http.Request) {
 
 	postgresql.CommitTx(tx)
 
-	returnBalance(w, acc.Balance-accountDto.Amount)
+	dto.ReturnBalance(w, acc.Balance-accountDto.Amount)
 }

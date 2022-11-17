@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/darahayes/go-boom"
+	_ "github.com/matster07/user-balance-service/docs"
 	"github.com/matster07/user-balance-service/internal/app/data/dto"
 	"github.com/matster07/user-balance-service/internal/app/data/entity"
 	"github.com/matster07/user-balance-service/internal/pkg/client/postgresql"
@@ -12,7 +13,13 @@ import (
 	"net/http"
 )
 
-// transfer Перевод средств
+//	@Summary      Transfer
+//	@Description  Перевод средств с одного указанного счета на другой
+//	@Tags         account
+//	@Accept       json
+//	@Produce      json
+//  @Param        TransferDTO body dto.TransferDTO  true "Идентификатор счета отправителя, идентификатор счета получетеля, сумма перевода"
+//	@Router       /account/transfer [post]
 func (h *Handler) transfer(w http.ResponseWriter, res *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -74,5 +81,5 @@ func (h *Handler) transfer(w http.ResponseWriter, res *http.Request) {
 
 	postgresql.CommitTx(tx)
 
-	returnBalance(w, from.Balance-transferDto.Amount)
+	dto.ReturnStatus(w, "SUCCESS")
 }
