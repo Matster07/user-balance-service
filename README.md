@@ -76,7 +76,7 @@ API
 
   price - (float) стоимость
 
-  status - ("COMPLETED"/other) статус исполнения заказа от стороннего сервиса
+  status - (string) статус исполнения заказа от стороннего сервиса
 - Description: отправка в очередь. Для успешной обработки заказ нужно status = "COMPETED". Все остальные статусы будут обрабатываться, но считаться неуспешными.
 - Postman request name: Push order status, Push failed order sttatus
 5. Метод получения баланса пользователя:
