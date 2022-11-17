@@ -356,7 +356,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:9090/api/v1/report/generate",
+					"raw": "http://localhost:9090/api/v1/report/service/profit?year=2022&month=11",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -366,7 +366,18 @@
 						"api",
 						"v1",
 						"report",
-						"generate"
+						"service",
+						"profit"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2022"
+						},
+						{
+							"key": "month",
+							"value": "11"
+						}
 					]
 				},
 				"description": "Query:\r\n\r\nyear - (uint) год\r\n\r\nmonth - (uint) месяц\r\n\r\nDescription: Создает отчет по прибыли в разрезе всех категорий услуг по всем пользователям за выбранный период. Файл сохраняется в каталоге reports/ в корне проекта. На запрос статус, а не ссылка. Это сделано для удоства, чтобы не передавать через env в image абсолютный путь."

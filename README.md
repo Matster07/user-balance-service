@@ -89,7 +89,7 @@ API
 - Postman request name: Reserve
 6. Метод для получения месячного отчета:
 - Method: GET
-- Path: /api/v1/report/generate
+- Path: /api/v1/report/service/profit
 - Query:
 
   year - (uint) год
@@ -108,7 +108,7 @@ API
 
   page - (uint) - порядковый номер желаемой выборки
 - Description: размера элементов в одной странице - 9. Сортировка по дате и сумме - возрастающее/убывающее/нету. Значения выбираются из transactions для указанного счета
-- Postman request name: Generate CSV
+- Postman request name: Get transactions with default pagination, Get transactions with date sort, Get transactions with amount sort
 8. Перевод средств:
 - Method: POST
 - Path: /api/v1/account/transfer
@@ -119,7 +119,7 @@ API
   amount - (float) сумма перевода
 
   to - (uint) кому
-- Description: списывает деньги со счета одного, прибавляет другому. Добавляет перевод в историю транзакций со типом "TRANSFER" 
+- Description: списывает деньги со счета одного, прибавляет другому. Добавляет перевод в историю транзакций со типом "TRANSFER". Счет аккаунта получателя должен быть создан заранее депозитом в любую сумму.
 - Postman request name: Transfer
 9. Вывод средств:
 - Method: POST
